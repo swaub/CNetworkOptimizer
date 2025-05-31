@@ -215,7 +215,7 @@ static void RunAsAdminViaTask() {
     }
 }
 
-static void ExecuteCommand(const char* cmd) {
+static HANDLE ExecuteCommandAsync(const char* cmd) {
     STARTUPINFOA si = { sizeof(si) };
     PROCESS_INFORMATION pi;
     char command[COMMAND_BUFFER_SIZE];
@@ -227,14 +227,16 @@ static void ExecuteCommand(const char* cmd) {
 
     if (CreateProcessA(NULL, command, NULL, NULL, FALSE,
         CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
+        return pi.hProcess;
     }
+    return NULL;
 }
 
 static DWORD WINAPI ApplyPresetThread(LPVOID lpParam) {
     int presetIndex = (int)(intptr_t)lpParam;
+    HANDLE* processes;
+    int processCount = 0;
 
     EnableWindow(GetDlgItem(hMainWindow, ID_BALANCED), FALSE);
     EnableWindow(GetDlgItem(hMainWindow, ID_BEST_HIT_REG), FALSE);
@@ -242,15 +244,26 @@ static DWORD WINAPI ApplyPresetThread(LPVOID lpParam) {
     EnableWindow(GetDlgItem(hMainWindow, ID_SUMO), FALSE);
     EnableWindow(GetDlgItem(hMainWindow, ID_RESET_DEFAULT), FALSE);
 
-    char statusText[256];
-    sprintf_s(statusText, 256, "Applying %s...", presets[presetIndex].name);
-    SetWindowTextA(hStatus, statusText);
+    processes = (HANDLE*)malloc(presets[presetIndex].commandCount * sizeof(HANDLE));
 
     for (int i = 0; i < presets[presetIndex].commandCount; i++) {
-        ExecuteCommand(presets[presetIndex].commands[i]);
+        HANDLE hProcess = ExecuteCommandAsync(presets[presetIndex].commands[i]);
+        if (hProcess) {
+            processes[processCount++] = hProcess;
+        }
     }
 
-    sprintf_s(statusText, 256, "%s applied successfully!", presets[presetIndex].name);
+    if (processCount > 0) {
+        WaitForMultipleObjects(processCount, processes, TRUE, INFINITE);
+        for (int i = 0; i < processCount; i++) {
+            CloseHandle(processes[i]);
+        }
+    }
+
+    free(processes);
+
+    char statusText[256];
+    sprintf_s(statusText, 256, "%s applied!", presets[presetIndex].name);
     SetWindowTextA(hStatus, statusText);
 
     EnableWindow(GetDlgItem(hMainWindow, ID_BALANCED), TRUE);
