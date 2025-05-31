@@ -36,7 +36,6 @@ const char* balancedCommands[] = {
     "netsh int tcp set global nonsackrttresiliency=disabled",
     "netsh int tcp set global initialRto=2500",
     "netsh int tcp set global maxsynretransmissions=3",
-    "netsh int tcp set supplemental template=Internet congestionprovider=ctcp",
     "netsh int tcp set supplemental template=custom icw=24",
     "netsh int tcp set supplemental template=custom icwndauto=enabled"
 };
@@ -53,7 +52,6 @@ const char* bestHitRegCommands[] = {
     "netsh int tcp set global initialRto=2000",
     "netsh int tcp set global maxsynretransmissions=2",
     "netsh int tcp set global netdma=disabled",
-    "netsh int tcp set supplemental template=InternetCustom congestionprovider=newreno",
     "netsh int tcp set supplemental template=custom icw=16",
     "netsh int tcp set supplemental template=custom icwndauto=disabled"
 };
@@ -70,7 +68,6 @@ const char* betterHitRegCommands[] = {
     "netsh int tcp set global initialRto=2000",
     "netsh int tcp set global maxsynretransmissions=3",
     "netsh int tcp set global netdma=disabled",
-    "netsh int tcp set supplemental template=Internet congestionprovider=newreno",
     "netsh int tcp set supplemental template=custom icw=24",
     "netsh int tcp set supplemental template=custom icwndauto=disabled"
 };
@@ -102,8 +99,6 @@ const char* windowsDefaultCommands[] = {
     "netsh int tcp set global fastopen=disabled",
     "netsh int tcp set global nonsackrttresiliency=disabled",
     "netsh int tcp set global initialRto=3000",
-    "netsh int tcp set global congestionprovider=ctcp",
-    "netsh int tcp set supplemental template=internet congestionprovider=ctcp",
     "netsh int ip set global defaultcurhoplimit=128",
     "netsh int ip set global neighborunreachabletime=30",
     "netsh int ip set global routercachelimit=32",
@@ -111,7 +106,6 @@ const char* windowsDefaultCommands[] = {
     "netsh int tcp set global timestamps=disabled",
     "netsh int tcp set global fastopen=enabled",
     "netsh int tcp set global ecncapability=enabled",
-    "netsh int reset"
 };
 
 Preset presets[PRESET_COUNT] = {
